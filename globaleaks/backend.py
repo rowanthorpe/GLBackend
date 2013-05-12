@@ -8,6 +8,7 @@
 # We also set to kill the threadpool (the one used by Storm) when the
 # application shuts down.
 
+import txtorcon
 from twisted.application.service import Application
 from twisted.application import internet
 from cyclone import web

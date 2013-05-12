@@ -4,12 +4,16 @@
 # along the Asynchronous event schedule
 
 import sys
-from apscheduler.events import EVENT_JOB_EXECUTED, EVENT_JOB_ERROR, EVENT_JOB_MISSED
+import functools
 
+from apscheduler.events import EVENT_JOB_EXECUTED, EVENT_JOB_ERROR, EVENT_JOB_MISSED 
+from twisted.internet.endpoints import TCP4ServerEndpoint
 from twisted.internet import reactor
 from twisted.application import service, internet, app
 from twisted.python.runtime import platformType
 from apscheduler.scheduler import Scheduler
+
+import txtorcon
 
 from globaleaks.utils import log
 from globaleaks.db import create_tables, check_schema_version
@@ -95,7 +99,9 @@ def start_asynchronous():
 from twisted.scripts._twistd_unix import ServerOptions, UnixApplicationRunner
 ServerOptions = ServerOptions
 
-def globaleaks_start():
+def globaleaks_start(config, proto):
+    GLSetting.onion_address = config.HiddenServices[0].hostname
+
     if not GLSetting.accepted_hosts:
         print "Missing a list of hosts usable to contact GLBackend, abort"
         raise AttributeError
@@ -109,10 +115,18 @@ def globaleaks_start():
             print "GLBackend is now running"
             for host in GLSetting.accepted_hosts:
                 print "Visit http://%s:%d to interact with me" % (host, GLSetting.bind_port)
+            print "Visit http://%s:%d via Tor to interact with me" % (GLSetting.onion_address, GLSetting.hs_public_port)
 
     else:
         raise Exception("Wrong schema version")
 
+
+def tor_startup_progress(prog, tag, summary):
+    print "%d%%: %s" % (prog, summary)
+
+def setup_failed(arg):
+    print "Failed to start Tor with txtorcon"
+    print arg
 
 class GLBaseRunnerUnix(UnixApplicationRunner):
     """
@@ -125,7 +139,21 @@ class GLBaseRunnerUnix(UnixApplicationRunner):
 
         self.startApplication(self.application)
 
-        globaleaks_start()
+        config = txtorcon.TorConfig()
+        config.HiddenServices = [
+            txtorcon.HiddenService(config,
+                                   GLSetting.torhs_path,
+                                   [str(GLSetting.hs_public_port) +
+                                    " 127.0.0.1:" + str(GLSetting.bind_port)]
+                                  )
+        ]
+        config.SocksPort = GLSetting.socks_port
+        config.save()
+
+        d = txtorcon.launch_tor(config, reactor,
+                                progress_updates=tor_startup_progress)
+        d.addCallback(functools.partial(globaleaks_start, config))
+        d.addErrback(setup_failed)
 
         self.startReactor(None, self.oldstdout, self.oldstderr)
         self.removePID(self.config['pidfile'])

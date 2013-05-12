@@ -56,6 +56,8 @@ class GLSettingsClass:
 
         # bind port
         self.bind_port = 8082
+        # Tor Hidden Service public port
+        self.hs_public_port = 80
 
         # store name
         self.store_name = 'main_store'
@@ -155,6 +157,8 @@ class GLSettingsClass:
         # Number of log files to conserve.
         self.maximum_rotated_log_files = 100
 
+        # Hidden service address
+        self.onion_address = None
 
     def eval_paths(self):
         self.pidfile_path = os.path.join(self.working_path, 'twistd.pid')
@@ -253,30 +257,20 @@ class GLSettingsClass:
 
     def validate_socks(self):
         """
-        Convert eventually hostname to IPv4 address format and then perform
-        a test connection at them. Need to simply perform a validation of the
-        socks and their reachability
+        Test connects to the Tor SOCKS Port. If the connection succeeds it
+        means that the port is not available, and therefore returns an error
+        message and quits.
         """
-        try:
-            ip_safe_socks_host = socket.gethostbyname(self.socks_host)
-            self.socks_host = ip_safe_socks_host
-        except Exception as excep:
-            print "Invalid host %s: %s" % (self.socks_host, excep.strerror)
-            quit(-1)
 
         testconn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         testconn.setblocking(0)
         testconn.settimeout(1.5) # 1.5 seconds to reach your socks
         try:
             testconn.connect((self.socks_host, self.socks_port))
-        except Exception as excep:
-            if hasattr(excep, 'strerror') and len(excep.strerror) > 1:
-                err_info = excep.strerror
-            else:
-                err_info = excep.message
-            print "Unable to connect to Tor socks at %s:%d (%s)" %\
-                  (self.socks_host, self.socks_port, err_info)
+            print "Selected SOCKS port is already in use!"
             quit(-1)
+        except Exception as excep:
+            pass
 
 
     def create_directories(self):
