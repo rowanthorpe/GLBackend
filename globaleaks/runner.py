@@ -148,6 +148,7 @@ class GLBaseRunnerUnix(UnixApplicationRunner):
                                   )
         ]
         config.SocksPort = GLSetting.socks_port
+        config.DataDirectory = GLSetting.tor_datadir
         config.save()
 
         d = txtorcon.launch_tor(config, reactor,
