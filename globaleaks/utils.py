@@ -20,7 +20,7 @@ from StringIO import StringIO
 
 from twisted.internet import reactor
 from twisted.internet.defer import Deferred
-from twisted.mail.smtp import ESMTPSenderFactory
+from twisted.mail.smtp import ESMTPSenderFactory, SMTPClient
 from twisted.internet.ssl import ClientContextFactory
 from twisted.protocols import tls
 
@@ -233,6 +233,13 @@ def sendmail(authentication_username, authentication_password, from_address,
         contextFactory=context_factory,
         requireAuthentication=(authentication_username and authentication_password),
         requireTransportSecurity=requireTransportSecurity)
+
+    def sendError(self, exc):
+        if exc.code and exc.resp:
+            log.err("STMP Error: %.3d %s" % (exc.code, exc.resp))
+        SMTPClient.sendError(self, exc)
+
+    factory.protocol.sendError = sendError
 
     if security == "SSL":
         factory = tls.TLSMemoryBIOFactory(context_factory, True, factory)
