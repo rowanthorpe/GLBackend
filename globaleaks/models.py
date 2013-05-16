@@ -315,7 +315,6 @@ class Node(Model):
     description = Unicode(validator=gltextv)
     name = Unicode(validator=gltextv)
     public_site = Unicode(validator=gltextv)
-    hidden_service = Unicode()
     email = Unicode()
     languages = Pickle()
     salt = Unicode()
@@ -328,8 +327,7 @@ class Node(Model):
     stats_update_time = Int()
     stats_update_time = Int()
 
-    unicode_keys = ['name', 'description', 'public_site',
-                    'email', 'hidden_service' ]
+    unicode_keys = ['name', 'description', 'email', 'public_site' ]
     int_keys = [ 'stats_update_time' ]
     bool_keys = []
 

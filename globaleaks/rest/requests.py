@@ -44,7 +44,6 @@ actorsTipOpsDesc = {
 adminNodeDesc = {
     'name': unicode,
     'description' : unicode,
-    'hidden_service' : unicode,
     'public_site' : unicode,
     'stats_update_time' : int,
     'email' : unicode,

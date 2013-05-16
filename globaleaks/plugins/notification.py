@@ -8,9 +8,10 @@
 # one of the various plugins (used by default, but still an optional adoptions)
 
 from cyclone import mail
-from twisted.internet.defer import Deferred
+
 from globaleaks.utils import log, sendmail
 from globaleaks.plugins.base import Notification
+from globaleaks.settings import GLSetting
 
 class MailNotification(Notification):
 
@@ -87,31 +88,25 @@ class MailNotification(Notification):
 
             tip_template_keyword = {}
 
-            if len(node_desc['hidden_service']):
-                tip_template_keyword.update({
-                    '%TipTorURL%':
-                        'http://%s/#/status/%s' %
-                            ( node_desc['hidden_service'],
-                              event_dicts.trigger_info['id']),
-                    })
-            else:
-                tip_template_keyword.update({
-                    '%TipTorURL%':
-                        'ADMIN, CONFIGURE YOUR HIDDEN SERVICE (Advanced configuration)!'
-                    })
+            tip_template_keyword.update({
+                '%TipTorURL%':
+                    'http://%s/#/status/%s' %
+                        ( GLSetting.onion_address,
+                          event_dicts.trigger_info['id']),
+                })
 
             if len(node_desc['public_site']):
                 tip_template_keyword.update({
                     '%TipT2WURL%':
-                        'https://%s/#/status/%s' %
+                        '%s/#/status/%s' %
                             ( node_desc['public_site'],
                               event_dicts.trigger_info['id'] ),
                     })
             else:
                 tip_template_keyword.update({
                     '%TipT2WURL%':
-                        'ADMIN, CONFIGURE YOUR PUBLIC SITE (Advanced configuration)'
-                    })
+                        '<< PublicSite|Tor2Web reported in the Template, but not configured >>'
+                })
 
             tip_template_keyword.update({
                 '%EventTime%': event_dicts.trigger_info['creation_date'],

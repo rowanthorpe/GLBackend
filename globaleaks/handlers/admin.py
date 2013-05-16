@@ -24,7 +24,7 @@ def admin_serialize_node(node):
         "description": node.description,
         "creation_date": utils.pretty_date_time(node.creation_date),
         "last_update": utils.pretty_date_time(node.last_update),
-        "hidden_service": node.hidden_service,
+        "hidden_service": GLSetting.onion_address,
         "public_site": node.public_site,
         "stats_update_time": node.stats_update_time,
         "email": node.email,
@@ -103,14 +103,9 @@ def update_node(store, request):
                  (request['old_password'], request['password'] ))
 
     if len(request['public_site']) > 1:
-        if not utils.acquire_url_address(request['public_site'], hidden_service=True, http=True):
+        if not utils.acquire_url_address(request['public_site'], hidden_service=False, http=True):
             log.err("Invalid public page regexp in [%s]" % request['public_site'])
             raise errors.InvalidInputFormat("Invalid public site")
-
-    if len(request['hidden_service']) > 1:
-        if not utils.acquire_url_address(request['hidden_service'], hidden_service=True, http=False):
-            log.err("Invalid hidden service regexp in [%s]" % request['hidden_service'])
-            raise errors.InvalidInputFormat("Invalid hidden service")
 
     # name, description and integer value are acquired here
     node.update(request)
