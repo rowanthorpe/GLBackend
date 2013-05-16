@@ -135,7 +135,6 @@ class TestGL(TestWithDB):
         self.dummyNode = {
              'name':  u"Please, set me: name/title",
              'description':  u"Please, set me: description",
-             'hidden_service':  u"Please, set me: hidden service",
              'public_site':  u"Please, set me: public site",
              'email':  u"email@dumnmy.net",
              'stats_update_time':  2, # hours,

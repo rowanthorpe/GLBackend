@@ -23,6 +23,8 @@ class GLJob:
         plan_exec = utils.utc_future_date(hours=0, seconds=seconds)
         plan_exec += (datetime.now() - datetime.utcnow())
 
+        log.start_logging()
+
         try:
             aps.add_date_job(self.operation, plan_exec)
         except ValueError as exc:

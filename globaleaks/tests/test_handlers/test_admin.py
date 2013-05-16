@@ -20,7 +20,6 @@ class TestNodeInstance(helpers.TestHandler):
 
     @inlineCallbacks
     def test_put_update_node(self):
-        self.dummyNode['hidden_service'] = 'abcdef1234567890.onion'
         self.dummyNode['public_site'] = 'http://blogleaks.blogspot.com'
 
         handler = self.request(self.dummyNode, role='admin')
@@ -33,26 +32,13 @@ class TestNodeInstance(helpers.TestHandler):
         del self.dummyNode['salt']
         del self.dummyNode['salt_receipt']
 
+        self.assertEqual(self.responses[0]['hidden_service'], None)
+        del self.responses[0]['hidden_service']
+
         self.assertEqual(self.responses[0], self.dummyNode)
 
     @inlineCallbacks
-    def test_put_update_node_invalid_hidden(self):
-        self.dummyNode['hidden_service'] = 'www.scroogle.com'
-        self.dummyNode['public_site'] = 'http://blogleaks.blogspot.com'
-
-        handler = self.request(self.dummyNode, role='admin')
-        try:
-            yield handler.put()
-            self.assertTrue(False)
-        except InvalidInputFormat:
-            self.assertTrue(True)
-        except Exception as excep:
-            print "Wrong exception: %s" % excep
-            raise excep
-
-    @inlineCallbacks
     def test_put_update_node_invalid_public(self):
-        self.dummyNode['hidden_service'] = 'abcdef1234567890.onion'
         self.dummyNode['public_site'] = 'blogleaks.blogspot.com'
 
         handler = self.request(self.dummyNode, role='admin')
