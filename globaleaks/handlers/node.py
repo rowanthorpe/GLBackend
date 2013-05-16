@@ -20,7 +20,6 @@ def anon_serialize_node(store):
     return {
       'name': unicode(node.name),
       'description': unicode(node.description),
-      'hidden_service': unicode(node.hidden_service),
       'public_site': unicode(node.public_site),
       'email': unicode(node.email),
       'languages': list(node.languages or []),
