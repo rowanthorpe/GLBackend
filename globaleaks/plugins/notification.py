@@ -56,6 +56,8 @@ class MailNotification(Notification):
         partial_template = template
 
         for key, var in keywords.iteritems():
+            if not var:
+                continue
             partial_template =  partial_template.replace(key, var)
 
         return partial_template
