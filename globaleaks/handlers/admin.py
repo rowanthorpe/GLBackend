@@ -4,10 +4,10 @@
 #   *****
 # Implementation of the code executed when an HTTP client reach /admin/* URI
 #
-import os, shutil
+import os, shutil, json
 
 from globaleaks.settings import transact, GLSetting, sample_context_fields
-from globaleaks.handlers.base import BaseHandler
+from globaleaks.handlers.base import BaseHandler, BaseStaticFileHandler
 from globaleaks.handlers.authentication import authenticated, transport_security_check
 from globaleaks.rest import errors, requests
 from globaleaks.models import Receiver, Context, Node, Notification, User
@@ -953,3 +953,21 @@ class NotificationInstance(BaseHandler):
         self.set_status(202) # Updated
         self.finish(response)
 
+class AhmiaStaticFileHandler(BaseStaticFileHandler):
+
+    def initialize(self, path=None):
+        pass
+
+    def get(self, *uriargs):
+        log.debug("Requested Ahmia description file")
+        self.write(json.dumps(
+            {
+                "title" : "test",
+                "description" : "test",
+                "keywords" : "test",
+                "relation" : "test",
+                "language" : "test",
+                "contactInformation" : "test",
+                "type" : "test"
+            }
+        ))
