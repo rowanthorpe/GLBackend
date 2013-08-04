@@ -129,9 +129,9 @@ spec.append(
     (r'/(favicon.ico)', BaseStaticFileHandler, {'path': GLSetting.static_path })
 )
 
-# ahmia.fi integration
+# ahmia.fi integration with description.json file
 spec.append(
-    (r'/(description.json)', admin.AhmiaStaticFileHandler)
+    (r'/(description.json)', admin.AhmiaDescriptionHandler)
 )
 
 spec.append(
