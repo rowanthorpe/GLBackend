@@ -7,7 +7,7 @@
 
 from twisted.internet.defer import inlineCallbacks
 
-from globaleaks import utils
+from globaleaks import utils, LANGUAGES_SUPPORTED
 from globaleaks.utils import l10n
 from globaleaks.settings import transact, GLSetting
 from globaleaks.handlers.base import BaseHandler
@@ -27,7 +27,7 @@ def anon_serialize_node(store, language=GLSetting.memory_copy.default_language):
       'public_site': unicode(node.public_site),
       'email': unicode(node.email),
       'languages_enabled': node.languages_enabled,
-      'languages_supported': node.languages_supported,
+      'languages_supported': LANGUAGES_SUPPORTED,
       'default_language' : node.default_language,
       'configured': True if associated else False,
       # extended settings info:

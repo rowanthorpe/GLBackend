@@ -227,13 +227,14 @@ class TableReplacer:
 
         # version 2 new entries:
         if self.start_ver >= 2:
-            new_obj.languages_supported = on.languages_supported
+            from globaleaks import LANGUAGES_SUPPORTED
+            new_obj.languages_supported = LANGUAGES_SUPPORTED
             new_obj.languages_enabled = on.languages_enabled
 
         # version 4 new entries!
         if self.start_ver >= 4:
-            new_node.presentation = on.presentation
-            new_node.default_language = on.default_language
+            new_obj.presentation = on.presentation
+            new_obj.default_language = on.default_language
 
         self.store_new.add(new_obj)
 

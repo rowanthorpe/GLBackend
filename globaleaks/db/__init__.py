@@ -28,6 +28,8 @@ def initialize_node(store, results, only_node, email_templates):
     # a migration script.
     node.database_version = DATABASE_VERSION
 
+    # this need to be removed and in the handlers returned the really
+    # supports languages, ignoring what's is written in the DB.
     node.languages_supported = LANGUAGES_SUPPORTED
 
     # by default, only english is the surely present language

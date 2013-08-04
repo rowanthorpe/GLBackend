@@ -18,7 +18,7 @@ from globaleaks import utils, security, models
 from globaleaks.utils import log, datetime_now, datetime_null, l10n
 from globaleaks.db import import_memory_variables
 from globaleaks.security import gpg_options_parse
-from globaleaks import LANGUAGES_SUPPORTED_CODES
+from globaleaks import LANGUAGES_SUPPORTED_CODES, LANGUAGES_SUPPORTED
 from globaleaks.third_party import rstr
 
 def admin_serialize_node(node, language=GLSetting.memory_copy.default_language):
@@ -32,7 +32,7 @@ def admin_serialize_node(node, language=GLSetting.memory_copy.default_language):
         "stats_update_time": node.stats_update_time,
         "email": node.email,
         "version": GLSetting.version_string,
-        "languages_supported": node.languages_supported,
+        "languages_supported": LANGUAGES_SUPPORTED,
         "languages_enabled": node.languages_enabled,
         "default_language" : node.default_language,
         'maximum_filesize': node.maximum_filesize,
@@ -953,21 +953,28 @@ class NotificationInstance(BaseHandler):
         self.set_status(202) # Updated
         self.finish(response)
 
-class AhmiaStaticFileHandler(BaseStaticFileHandler):
+
+class AhmiaDescriptionHandler(BaseStaticFileHandler):
 
     def initialize(self, path=None):
         pass
 
+    @inlineCallbacks
     def get(self, *uriargs):
         log.debug("Requested Ahmia description file")
+
+        node_info = yield get_node()
+
         self.write(json.dumps(
             {
-                "title" : "test",
-                "description" : "test",
-                "keywords" : "test",
-                "relation" : "test",
-                "language" : "test",
-                "contactInformation" : "test",
-                "type" : "test"
+                "title" : node_info['name'],
+                "description" : node_info['description'],
+                # we've not yet keywords, need to add them in Node ?
+                "keywords" : "globaleaks, %s" % node_info['name'],
+                "relation" : node_info['public_site'],
+                "language" : node_info['default_language'],
+                "contactInformation" : u'', # we've removed Node.email_addr
+                "type" : "GlobaLeaks", # ?
+                "application": "GlobaLeaks"
             }
         ))
