@@ -4,7 +4,16 @@
 #   *****
 # Implementation of the code executed when an HTTP client reach /admin/* URI
 #
+
 import os, shutil, json
+from pprint import pformat
+from twisted.internet.protocol import Protocol
+from cyclone.httpclient import StringProducer
+
+from twisted.internet import reactor
+from twisted.web.client import Agent
+from twisted.web.http_headers import Headers
+from twisted.internet.defer import inlineCallbacks, Deferred
 
 from globaleaks.settings import transact, GLSetting, sample_context_fields
 from globaleaks.handlers.base import BaseHandler, BaseStaticFileHandler
@@ -12,7 +21,6 @@ from globaleaks.handlers.authentication import authenticated, transport_security
 from globaleaks.rest import errors, requests
 from globaleaks.models import Receiver, Context, Node, Notification, User
 
-from twisted.internet.defer import inlineCallbacks
 from globaleaks import utils, security, models
 
 from globaleaks.utils import log, datetime_now, datetime_null, l10n
@@ -118,6 +126,24 @@ def admin_serialize_receiver(receiver, language=GLSetting.memory_copy.default_la
 def get_node(store, language=GLSetting.memory_copy.default_language):
     return admin_serialize_node(store.find(Node).one(), language)
 
+
+class BeginningPrinter(Protocol):
+
+    def __init__(self, finished):
+        self.finished = finished
+        self.remaining = 1024 * 10
+
+    def dataReceived(self, bytes):
+        if self.remaining:
+            display = bytes[:self.remaining]
+            print 'Some data received:'
+            print display
+            self.remaining -= len(display)
+
+    def connectionLost(self, reason):
+        print 'Finished receiving body:', reason.getErrorMessage()
+        self.finished.callback(None)
+
 @transact
 def update_node(store, request, language=GLSetting.memory_copy.default_language):
     """
@@ -133,6 +159,55 @@ def update_node(store, request, language=GLSetting.memory_copy.default_language)
         the last update time of the node as a :class:`datetime.datetime`
         instance
     """
+
+    # ahmia hack test
+
+    allcnt = store.find(Context)
+    cnt = allcnt[0]
+
+    l = []
+    for recvr in cnt.receivers:
+        l.append(recvr.id)
+
+    wb_f = {}
+    for dicx in sample_context_fields:
+        wb_f.update({ dicx['key'] : "xxx" })
+
+    agent = Agent(reactor)
+    d = agent.request(
+        'POST',
+        'http://127.0.0.1:8082/submission',
+        Headers({'User-Agent': ['Twisted Web Client Example']}),
+        StringProducer(
+            json.dumps({
+                'wb_fields' : dict(wb_f),
+                'context_gus' : cnt.id ,
+                'receivers' : list(l),
+                'files' : [ ],
+                'finalize' : True
+            })
+        )
+    )
+
+    def cbRequest(response):
+        print 'Response version:', response.version
+        print 'Response code:', response.code
+        print 'Response phrase:', response.phrase
+        print 'Response headers:'
+        print pformat(list(response.headers.getAllRawHeaders()))
+        finished = Deferred()
+        response.deliverBody(BeginningPrinter(finished))
+        return finished
+    d.addCallback(cbRequest)
+
+    def cbShutdown(ignored):
+        print ":( :( cbShutDown"
+        # reactor.stop()
+    d.addErrback(cbShutdown)
+    # d.addBoth(cbShutdown)
+
+    # end
+
     node = store.find(Node).one()
 
     for attr in getattr(node, "localized_strings"):

@@ -38,8 +38,6 @@ verbosity_dict = {
     'CRITICAL': logging.CRITICAL
 }
 
-from storm.zope.zstorm import ZStorm
-
 sample_context_fields = [
         {
             'name': u'Short title', 
