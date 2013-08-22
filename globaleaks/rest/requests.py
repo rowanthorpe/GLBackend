@@ -39,9 +39,10 @@ receiverReceiverDesc = {
     "comment_notification": bool,
     "file_notification": bool,
     "tip_notification": bool,
-    # remind:
-    # notification language, a default need to be provided
-    # and need to be sets by receiver (atm: 'en')
+}
+
+receiverActivationDesc = {
+    'new_password' : unicode
 }
 
 actorsCommentDesc = {

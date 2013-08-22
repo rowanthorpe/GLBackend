@@ -10,7 +10,7 @@
 import os
 
 from globaleaks.settings import GLSetting
-from globaleaks.handlers import node, submission, tip, admin, receiver, files, authentication, admstaticfiles, overview
+from globaleaks.handlers import node, submission, tip, admin, receiver, files, authentication, admstaticfiles, overview, activation
 from globaleaks.handlers.base import BaseStaticFileHandler, BaseRedirectHandler
 from globaleaks.rest.base import uuid_regexp
 
@@ -52,6 +52,9 @@ spec = [
 
     #  U8
     (r'/authentication', authentication.AuthenticationHandler),
+
+    #  U9, Activation URL
+    (r'/activation/' + uuid_regexp, activation.ActivationInstance),
 
     ## Tip Handlers ##
 

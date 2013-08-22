@@ -79,7 +79,6 @@ def update_receiver_settings(store, user_id, request, language=GLSetting.memory_
     if not mail_address:
         raise NoEmailSpecified
 
-    # receiver.notification_fields is not update until GLClient supports them
     receiver.tip_notification = acquire_bool(request['tip_notification'])
     receiver.comment_notification = acquire_bool(request['comment_notification'])
     receiver.file_notification = acquire_bool(request['file_notification'])
@@ -190,3 +189,4 @@ class TipsCollection(BaseHandler):
 
         self.set_status(200)
         self.finish(answer)
+

@@ -12,6 +12,8 @@ CREATE TABLE user (
     last_update VARCHAR, 
     first_failed VARCHAR NOT NULL,
     failed_login_count INTEGER NOT NULL,
+    recovery_code VARCHAR,
+    recovery_date VARCHAR,
     PRIMARY KEY (id),
     UNIQUE (username)
 );

@@ -357,3 +357,12 @@ class GPGKeyIDNotUnique(GLException):
     error_code = 44
     status_code =  406
     reason = "GPG Key ID it's already used by another receiver"
+
+class UserNotFound(GLException):
+    """
+    The user ID or the code looked in User table is not found
+    """
+    reason = "Not found an User with the specified identifier"
+    error_code = 45
+    status_code = 404 # Not Found
+

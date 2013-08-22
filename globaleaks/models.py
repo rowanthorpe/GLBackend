@@ -199,8 +199,15 @@ class User(Model):
     first_failed = DateTime()
     failed_login_count = Int()
 
+    recovery_code = Unicode()
+    recovery_date = DateTime()
+
     _roles = [ u'admin', u'receiver' ]
     _states = [ u'disabled', u'to_be_activated', u'enabled', u'temporary_blocked']
+    # 'disabled': an user unable to login, receive tip, receive notification (not used ATM)
+    # 'enabled': an user able to login, receive tip, receive notification
+    # 'temporary_blocked': same as "enabled" but can't login
+    # 'to_be_activated': same as disabled but waiting something that shall flip status to 'active'
 
     unicode_keys = [ 'username', 'password', 'salt', 'role', 'state' ]
     localized_strings = [ ]
